@@ -1,0 +1,77 @@
+NAME
+
+    Lingua::Conjunction - Convert Perl lists into linguistic
+    conjunctions
+
+SYNOPSIS
+
+      use Lingua::Conjunction;
+
+      # emits "Jack"
+      $name_list = conjunction('Jack');
+
+      # emits "Jack and Jill"
+      $name_list = conjunction('Jack', 'Jill');
+      
+      # emits "Jack, Jill, and Spot"
+      $name_list = conjunction('Jack', 'Jill', 'Spot');
+
+      # emits "Jack, a boy; Jill, a girl; and Spot, a dog"
+      $name_list = conjunction('Jack, a boy', 'Jill, a girl', 'Spot, a dog');
+
+      # emits "Jacques, un garcon; Jeanne, une fille; et Spot, un chien"
+      Lingua::Enlist->lang('fr');
+      $name_list = conjunction(
+          'Jacques, un garcon',
+          'Jeanne, une fille',
+          'Spot, un chien'
+      );
+
+DESCRIPTION
+
+    Lingua::Conjunction exports a single subroutine, `conjunction',
+    that converts a list into a properly punctuated text string.
+
+    You can cause `conjunction' to use the connectives of other
+    languages, by calling the appropriate subroutine:
+
+        Lingua::Conjunction->lang('en');   # use 'and' (default)
+        Lingua::Conjunction->lang('es');   # use 'y'
+
+    Supported languages in this version are English, Spanish,
+    French, Italian, German, Portuguese, Norwiegian, and Danish.
+
+    You can also set connectives individually:
+
+            Lingua::Conjunction->separator("...");
+            Lingua::Conjunction->separator_phrase("--");
+            Lingua::Conjunction->connector_type("or");
+
+            # emits "Jack... Jill... or Spot"
+            $name_list = conjunction('Jack', 'Jill', 'Spot');
+
+    The "separator_phrase" is used whenever the separator already
+    appears in an item of the list. For example:
+
+            # emits "Doe, a deer; Ray; and Me"
+            $name_list = conjunction('Doe, a deer', 'Ray', 'Me');
+
+REVISION HISTORY
+
+    Originally this modules was uploaded to CPAN as `Text::List'.
+    After some criticism, this module was renamed.
+
+    As per suggestions, other features were added. Probably too many
+    features for what amounts to a simple hack.
+
+SEE ALSO
+
+    `Locale::Language'
+
+AUTHORS
+
+    Robert Rothenberg <wlkngowl@unix.asb.com>
+
+    Damian Conway <damian@csse.monash.edu.au>
+
+
