@@ -7,7 +7,7 @@ require Exporter;
 
 @ISA = qw( Exporter );
 @EXPORT = qw( conjunction );
-$VERSION = '1.99';
+$VERSION = '2.00';
 
 # Language-specific definitions (these may not be correct, and certainly
 # they are not complete... E-mail corrections and additions to the author
@@ -22,17 +22,22 @@ $VERSION = '1.99';
 #   (ie, "Jack, Jill and Spot" vs. "Jack, Jill, and Spot")
 # con = conjunction ("and")
 # dis = disjunction ("or"), well, grammatically still a "conjunction"...
- 
+
 my %language =
 (
- 'en' => { sep => ',', alt => ";", pen => 1, con => 'and', dis => 'or'    },
- 'fr' => { sep => ',', alt => ";", pen => 1, con => 'et',  dis => 'ou'    },
- 'it' => { sep => ',', alt => ";", pen => 1, con => 'e',   dis => 'o'     },
+ 'af' => { sep => ',', alt => ";", pen => 1, con => 'en',  dis => 'of'    },
+ 'da' => { sep => ',', alt => ";", pen => 1, con => 'og',  dis => 'eller' },
  'de' => { sep => ',', alt => ";", pen => 1, con => 'und', dis => 'oder'  },
+ 'en' => { sep => ',', alt => ";", pen => 1, con => 'and', dis => 'or'    },
  'es' => { sep => ',', alt => ";", pen => 1, con => 'y',   dis => 'o'     },
- 'pt' => { sep => ',', alt => ";", pen => 1, con => 'e',   dis => 'ou'    },
+ 'fi' => { sep => ',', alt => ";", pen => 1, con => 'ja',  dis => 'tai'   },
+ 'fr' => { sep => ',', alt => ";", pen => 0, con => 'et',  dis => 'ou'    },
+ 'it' => { sep => ',', alt => ";", pen => 1, con => 'e',   dis => 'o'     },
+ 'la' => { sep => ',', alt => ";", pen => 1, con => 'et',  dis => 'vel'   },
+ 'nl' => { sep => ',', alt => ';', pen => 1, con => 'en',  dis => 'of'    },
  'no' => { sep => ',', alt => ";", pen => 0, con => 'og',  dis => 'eller' },
- 'da' => { sep => ',', alt => ";", pen => 1, con => 'og',  dis => 'eller' }
+ 'pt' => { sep => ',', alt => ";", pen => 1, con => 'e',   dis => 'ou'    },
+ 'sw' => { sep => ',', alt => ";", pen => 1, con => 'na',  dis => 'au'    },
 );
 
 # Conjunction types. Someday we'll add either..or, neither..nor
@@ -42,7 +47,7 @@ my %types =
     'or'      => 'dis'
 );
 
-my %punct = %{$language{en}};
+my %punct     = %{$language{en}};
 my $list_type = $types{'and'};
 
 use Carp;
@@ -100,7 +105,9 @@ sub conjunction
 	return join "$punct{sep} ", @_[0..$#_-1], "$punct{$list_type} $_[-1]",
 	    unless grep /$punct{sep}/, @_;
 	return join "$punct{alt} ", @_[0..$#_-1], "$punct{$list_type} $_[-1]";
-    } else {
+    }
+    else
+    {
 	return join "$punct{sep} ", @_[0..$#_-2], "$_[-2] $punct{$list_type} $_[-1]",
 	    unless grep /$punct{sep}/, @_;
 	return join "$punct{alt} ", @_[0..$#_-2], "$_[-2] $punct{$list_type} $_[-1]";
@@ -120,23 +127,27 @@ Lingua::Conjunction - Convert Perl lists into linguistic conjunctions
 
 =head1 SYNOPSIS
 
-  use Lingua::Conjunction;
+    use Lingua::Conjunction;
 
-  # emits "Jack"
-  $name_list = conjunction('Jack');
+    # emits "Jack"
+    $name_list = conjunction('Jack');
 
-  # emits "Jack and Jill"
-  $name_list = conjunction('Jack', 'Jill');
+    # emits "Jack and Jill"
+    $name_list = conjunction('Jack', 'Jill');
   
-  # emits "Jack, Jill, and Spot"
-  $name_list = conjunction('Jack', 'Jill', 'Spot');
+    # emits "Jack, Jill, and Spot"
+    $name_list = conjunction('Jack', 'Jill', 'Spot');
 
-  # emits "Jack, a boy; Jill, a girl; and Spot, a dog"
-  $name_list = conjunction('Jack, a boy', 'Jill, a girl', 'Spot, a dog');
+    # emits "Jack, a boy; Jill, a girl; and Spot, a dog"
+    $name_list = conjunction('Jack, a boy', 'Jill, a girl', 'Spot, a dog');
 
-  # emits "Jacques, un garcon; Jeanne, une fille; et Spot, un chien"
-  Lingua::Enlist->lang('fr');
-  $name_list = conjunction('Jacques, un garcon', 'Jeanne, une fille', 'Spot, un chien');
+    # emits "Jacques, un garcon; Jeanne, une fille; et Spot, un chien"
+    Lingua::Conjunction->lang('fr');
+    $name_list = conjunction(
+        'Jacques, un garcon',
+        'Jeanne, une fille',
+        'Spot, un chien'
+    );
 
 =head1 DESCRIPTION
 
@@ -150,41 +161,68 @@ calling the appropriate subroutine:
     Lingua::Conjunction->lang('es');   # use 'y'
 
 Supported languages in this version are English, Spanish, French, Italian,
-German, Portuguese, Norwiegian, and Danish.
+German, Portuguese, Norwegian, Danish, Dutch, Afrikaans, Swahili, and Latin.
+(Klingon is intentionally not supported.)
 
 You can also set connectives individually:
 
-	Lingua::Conjunction->separator("...");
-	Lingua::Conjunction->separator_phrase("--");
-	Lingua::Conjunction->connector_type("or");
+    Lingua::Conjunction->separator("...");
+    Lingua::Conjunction->separator_phrase("--");
+    Lingua::Conjunction->connector_type("or");
 
-        # emits "Jack... Jill... or Spot"
-        $name_list = conjunction('Jack', 'Jill', 'Spot');
+    # emits "Jack... Jill... or Spot"
+    $name_list = conjunction('Jack', 'Jill', 'Spot');
 
-The "separator_phrase" is used whenever the separator already appears in
+The C<separator_phrase> is used whenever the separator already appears in
 an item of the list. For example:
 
-  	# emits "Doe, a deer; Ray; and Me"
-  	$name_list = conjunction('Doe, a deer', 'Ray', 'Me');
+    # emits "Doe, a deer; Ray; and Me"
+    $name_list = conjunction('Doe, a deer', 'Ray', 'Me');
+
+You may use the C<penultimate> routine to diable the separator after the
+next to last item. Generally this is bad English practice but the option
+is there if you want it:
+
+    # emits "Jack, Jill and Spot"
+    Lingua::Conjunction->penultimate(0);
+    $name_list = conjunction('Jack', 'Jill', 'Spot');
+
+I have been told that the penultimate comma is not standard for some
+languages, such as Norwegian. Hence the defaults set in the C<%languages>.
 
 =head1 REVISION HISTORY
 
 Originally this modules was uploaded to CPAN as C<Text::List>. After some
-criticism, this module was renamed.
+criticism, it was renamed.
 
-As per suggestions, other features were added. Probably too many features
+As per suggestions, other features were added.  Probably too many features
 for what amounts to a simple hack.
+
+More languages could be added, but some languages have more complex
+rules (inflections and multiple forms of 'and' depending on the
+context, etc.)
 
 =head1 SEE ALSO
 
 C<Locale::Language>
 
+The I<Perl Cookbook> in Section 4.2 has a simular subroutine called
+C<commify_series>. The different is that 1. this routine handles
+multiple languages and 2. being a module, you do not have to add
+the subroutine to a script every time you need it. 
+
 =head1 AUTHORS
 
-Robert Rothenberg <wlkngowl@unix.asb.com>
+Robert Rothenberg <rrwo@cpan.org>
 
 Damian Conway <damian@csse.monash.edu.au>
 
+=head1 LICENSE
+
+This program is free software; you can redistribute it and/or
+modify it under the same terms as Perl itself.
+
 =cut
+
 
 

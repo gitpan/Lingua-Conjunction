@@ -1,7 +1,11 @@
 use ExtUtils::MakeMaker;
-# See lib/ExtUtils/MakeMaker.pm for details of how to influence
-# the contents of the Makefile that is written.
+
 WriteMakefile(
-    'NAME'	=> 'Lingua::Conjunction',
-    'VERSION_FROM' => 'Conjunction.pm', # finds $VERSION
+    'NAME'	   => 'Lingua::Conjunction',
+    'VERSION_FROM' => 'Conjunction.pm',
+    'PREREQ_PM'		=> {},
+  ($] ge '5.005') ? (
+    'AUTHOR'   => 'Robert Rothenberg (rrwo@cpan.org), Damian Conway <damian@csse.monash.edu.au>',
+    'ABSTRACT' => 'Convert Perl lists into linguistic conjunctions',
+  ) : (),
 );
